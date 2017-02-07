@@ -13,4 +13,63 @@
 
   如果是上面介绍的流体特性div, 当其和浮动元素当兄弟的时候，是覆盖的关系（可以脑补下文字环绕图片效果）。但是，元素BFC化后，本着“里面惊天抱诈（和谐）炸成鬼，外面依然泰然钓大鱼”的原则，自然是不会与浮动重叠的（你想啊，要是出来个clear:both还不跟外面浮动干上一架啊），因此，块状相邻
 
+  BFC元素家族与自适应布局面面观
+  理论上，任何BFC元素和浮动搞基的时候，都可以实现自动填充的自适应布局。
+
+  但是，由于绝大多数的触发BFC的属性自身有一些古怪的特性，所以，实际操作的时候，能兼顾流体特性和BFC特性来实现无敌自适应布局的属性并不多。下面我们牵驴遛马一个一个瞅瞅（类似行为仅出1个代表示意，你懂的，如float:left/right）：
+
+  float:left 浮动元素本身BFC化，然而浮动元素有破坏性和包裹性，失去了元素本身的流体自适应性，因此，无法用来实现自动填满容器的自适应布局。不过，其因兼容性还算良好，与堆积木这种现实认知匹配，上手简单，因此在旧时代被大肆使用，也就是常说的“浮动布局”，也算阴差阳错开创了自己的一套布局。
+  position:absolute 这个脱离文档流有些严重，过于清高，不跟普通小伙伴玩耍，我就不说什么了……
+  overflow:hidden 这个超棒的哦！不像浮动和绝对定位，玩得有点过。也就是溢出剪裁什么的，本身还是个很普通的元素。因此，块状元素的流体特性保存相当完好，附上BFC的独立区域特性，可谓如虎添翼，宇宙无敌！哈无诶瓦(However), 就跟清除浮动：
+  .clearfix { overflow: hidden; _zoom: 1; }
+  一样。由于很多场景我们是不能overflow:hidden的，因此，无法作为一个通用CSS类整站大规模使用。因此，float+overflow的自适应布局，我们可以在局部（你确定不会有什么被剪裁的情况下）很happy地使用。
+
+  display:inline-block CSS届最伟大的声明之一，但是，在这里，就有些捉襟见肘了。display:inline-block会让元素尺寸包裹收缩，完全就不是我们想要的block水平的流动特性。唉，只能是一声叹气一枪毙掉的命！然而，峰回路转，世事难料。大家应该知道，IE6/IE7浏览器下，block水平的元素设置display:inline-block元素还是block水平，也就是还是会自适应容器的可用宽度显示。于是，我们就阴差阳错得到一个比overflow:hidden更牛逼的声明，即BFC特性加身，又流体特性保留。
+  .float-left {
+      float: left;
+  }
+  .bfc-content {
+      display: inline-block;
+  }
+  当然，*zoom: 1也是类似效果，不过只适用于低级的IE浏览器，如IE7~
+
+  display:table-cell 让元素表现得像单元格一样，IE8+以上浏览器才支持。跟display:inline-block一样，会跟随内部元素的宽度显示，看样子也是不合适的命。但是，单元格有个非常神奇的特性，就是你宽度值设置地再大，大到西伯利亚，实际宽度也不会超过表格容器的宽度。
+  表格单元格不会超出表格宽度特性
+  因此，如果我们把display:table-cell这个BFC元素宽度设置很大，比方说3000像素。那其实就跟block水平元素自动适应容器空间效果一模一样了。除非你的容器宽度超过3000像素，实际上，一般web页面不会有3000像素宽的模块的。所以，要是你实在不放心，设个9999像素值好了！
+
+  .float-left {
+      float: left;
+  }
+  .bfc-content {
+      display: table-cell; width: 9999px;
+  }
+  看上去，好像还不错。但是，还是有两点制约，一是IE8+以上浏览器兼容，有些苦逼的团队还要管IE6；二是应付连续英文字符换行有些吃力（可以嵌套table-layout:fixed解决）。但是，总体来看，适用的场景要比overflow:hidden广博很多。
+
+  display:table-row 对width无感，无法自适应剩余容器空间。
+  display:table-caption 一无是处……还有其他声明也都是一无是处，我就不全部展开了……
+  总结：我们对BFC声明家族大致过了一遍，能担任自适应布局重任的也就是：
+
+  overflow:auto/hidden IE7+
+  display:inline-block IE6/IE7
+  display:table-cell IE8+
+  由于overflow有剪裁和出现滚动条等隐患，不适合作为整站通用类，于是，最后，类似清除浮动的通用类语句：
+
+  .clearfix {
+      *zoom: 1;
+  }
+  .clearfix:after {
+      content: ''; display: table; clear: both;
+  }
+  两栏或多栏自适应布局的通用类语句是（block水平标签，需配合浮动）：
+
+  .cell {
+      display: table-cell; width: 9999px;
+      *display: inline-block; *width: auto;
+  }
+  这就是zxx.lib.cssCSS样式库中.cell的由来！
+
+  当然，由于和浮动元素合作，清除浮动还是要的，于是，就有了.fix + .l/.r + .cell的无敌组合，可以多栏，也可以无限嵌套。
+
+  如果是局部，且确认安全；或有连续英文字符换行的隐患，你也可以使用.fix + .l/.r + .ovh的无敌组合，可以多栏，也可以无限嵌套。
+
 摘自---张鑫旭 文章 《CSS深入理解流体特性和BFC特性下多栏自适应布局》
