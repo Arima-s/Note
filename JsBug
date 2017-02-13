@@ -1,0 +1,290 @@
+函数和操作符
+
+双等号
+
+==操作符比较时会进行类型的强制转换，这意味着它可以比较两个不同类型的对象，在执行比较之前它将会尝试把这两个对象转换成同一个类型，举一个例子：
+
+"1" == 1 //true
+然而，这样往往会误导我们，而且我们也不需要这样子来比较。在上面的例子中，我们完全可以先将字符串转换成数字型，然后利用对类型敏感的三重等号（===）来进行比较，如：
+
+Number("1") === 1; //true
+或者，更好的是，确保你放在首位的操作数的类型是正确的。
+
+由于双等号具有强制类型转换的行为，所以它会打破一般的传递性规则，这点有点吓人，请看下面的列子：
+
+"" == 0 //true - 空字符串会被强制转换为数字0.0 == "0" //true - 数字0会被强制转换成字符串"0""" == "0" //false - 两操作数都是字符串所以不执行强制转换
+如果使用三重等号，上面的三个比较都将返回false。
+
+parseInt不把10作为数字基数
+
+如果你忽略parseInt的第二个参数，那么数字的基数将由下面的规则所决定：
+
+默认基数为10，即按10进制解析
+如果数字以0x开头，那么基数为16，即按16进制解析
+如果数字以0开头，那么基数为8，即按8进制解析
+一个常见的错误是我们让用户输入以0开头的数字，这时候它就按8进制的方式去解析了，于是我们就看到了如下的效果：
+
+parseInt("8"); //8parseInt("08"); //0
+因此，我们很多时候都会指定parseInt的第二个参数，如下所示：
+
+parseInt("8", 10); //8parseInt("08", 10); //8
+ECMAScript5方面的说明：ECMAScript已不再支持8进制的解析假设，另外，如果忽略parseInt的第二个参数将会引起JSLint的警告。
+
+字符串替换
+
+字符串替换函数仅仅会替换第一个匹配项，并不能替换你所期望的全部匹配项。如下代码：
+
+"bob".replace("b", "x"); // "xob""bob".replace(/b/, "x"); // "xob" (使用了正则表达式)
+如果要替换所有的匹配项，我们可以使用正则表达式，并为他它添加全局修饰符，如下代码：
+
+"bob".replace(/b/g, "x"); // "xox""bob".replace(new RegExp("b", "g"), "x"); // "xox" (alternate explicit RegExp)
+全局修饰符确保了替换函数找到第一个匹配项后不会停止对下一个匹配项的替换。
+
+“+"操作符会执行相加操作和字符串连接操作
+
+php作为另一种弱类型语言，可以使用”.“操作符对字符串进行连接。Javascript却不是这样的 - 所以当操作数是字符串的时候”a+b“通常是执行连接操作。如果你想执行数字相加那你就要引起注意了，因为输入的内容可能是字符串类型的，所以你在执行相 加操作前需要先将其转换成数字类型，代码如下：
+
+1 + document.getElementById("inputElem").value; // 连接操作1 + Number(document.getElementById("inputElem").value); // 相加操作
+需要注意的是，相减操作会尝试将操作数转换成数字类型，代码如下：
+
+"3" - "1"; // 2
+尽管有时候你想用减法将字符串从另一个字符串中减掉，但这时候往往会产生一些逻辑错误。
+
+很多时候我们用数字和空串相加来实现数字转换成字符串的操作，代码如下：
+
+3 + ""; // "3"
+但是这样做并不好，所以我们可以用String(3)来取代上面的方法。
+
+typeof
+
+typeof这会返回一个javascript基本类型的实例的类型。Array实际上不是基本类型，所以typeof Array对象将返回Object，代码如下：
+
+typeof {} === "object" //truetypeof "" === "string" //truetypeof [] === "array"; //false
+当你对自己的对象的实例使用这个操作符时将会得到相同的结果（typeof = "object"）。
+
+另外说明一点，”typeof null“将返回”object“，这个有点诡异。
+
+instanceof
+
+instanceof返回指定对象是否是由某个类构造的实例，这个对我们检查指定对象是否是自定义类型之一很有帮助，但是，如果你是用文本语法创建的内置类型那可能会得出错误的结果，代码如下：
+
+"hello" instanceof String; //falsenew String("hello") instanceof String; //true
+由于Array实际上不是内置类型（只是伪装成内置类型 - 因此对它使用typeof不能得到预期的结果），但是使用instanceof就能得到预期效果了，代码如下所示：
+
+["item1", "item2"] instanceof Array;  //truenew Array("item1", "item2") instanceof Array;  //true
+唉，不爽！总的来说，如果你想测试Boolean, String, Number, 或者Function的类型，你可以使用typeof，对于其他的任何类型，你可以使用instanceof测试。
+
+哦，还有一点，在一个function中，有一个预定义变量叫“arguments”，它以一个array的形式传递给function。然而，它并不是真正的array，它只是一个类似array的对象，带有长度属性并且属性值从0-length。非常奇怪...你可以用下面的小伎俩将它转换成真正的数组：
+
+var args = Array.prototype.slice.call(arguments, 0);
+这个对由getElementsByTagName返回的NodeList对象也是一样的 - 它们都可以用以上的代码转换成合适的数组。
+
+eval
+
+eval 可以将字符串以javascript代码的形式来解析执行，但是一般来说我们不建议这么做。因为eval非常慢 - 当javascript被加载到浏览器中时，它会被编译成本地代码；然而执行的过程中每次遇到eval表达式，编译引擎都将重新启动执行编译，这样做的代价太大了。而且这样做也丑陋无比，有很多eval被滥用的例子。另外，在eval中的代码会在当前范围内执行，因此它可以修改局部变量，以及在你的范围内添加一些让你意想不到的东西。
+
+JSON 转换是我们经常要做的；通常我们使用“var obj = eval(jsonText);”来进行转换。然而现在几乎所有的浏览器都支持本地JSON对象，你可以使用“var obj = JSON.parse(jsonText);”来替代前面的代码。相反你也可以用“JSON.stringify”将JSON对象转换成字符串。更妙的是，你可以使用“jQuery.parseJSON”来完成上述的工作。
+
+setTimeout和setInterval函数的第一个参数可以用字符串作为函数体来解析执行，当然，我们也不建议这样做，我们可以用实际的函数来替代。
+
+最后，Function的构造函数和eval非常像，唯一不同的是，Function构造函数是在全局范围内执行的。
+
+with
+
+with表达式将为你提供访问对象属性的速记方式，但我们是否应该使用它，仍然存在矛盾的观点。Douglas Crockford不太喜欢它。John Resig在他的书中有找了很多with的巧妙用法，但是他也承认这将会影响性能并且会产生一点混乱。来看看我们分离出来的with代码块，他不能准确地告诉我们现在正在执行什么，代码如下所示：
+
+with (obj) {
+    bob = "mmm";
+    eric = 123;
+}
+我是否刚刚修改了一个叫bob的局部变量？或者我是否设置了obj.bob？如果obj.bob已经被定义，那么它将会被重置为“mmm”。否则，如果有 另一个bob在这个范围中，那么他将会被改变。否则，全局变量bob会被设置。最后，下面的写法可以非常明确地表达你的意思：
+
+obj.bob = "mmm";
+obj.eric = 123;
+ECMAScript5说明：ES5严格的来说已经不支持with表达式。
+
+
+
+类型和构造函数
+
+使用“new”关键字构造内置类型
+
+Javascript中有Object, Array, Boolean, Number, String, 和Function这些类型，他们各自都有各自的文字语法，所以就不需要显式构造函数了。
+
+显式构造(不建议)	文字语法(推荐)
+var a = new Object();
+a.greet = "hello";	var a = { greet: "hello" };
+var b = new Boolean(true);	var b = true;
+var c = new Array("one", "two");	var c = ["one", "two"];
+var d = new String("hello");	var d = "hello"
+var e = new Function("greeting", "alert(greeting);");	var e = function(greeting) { alert(greeting); };
+然而，如果你使用new关键字来构造上面其中的一种类型，你实际上将会得到一个类型为Object并且继承自你要构造的类型的原型的对象（Function类型除外）。所以尽管你用new关键字构造了一个Number类型，它也将是一个Object类型，如下代码：
+
+typeof new Number(123); // "object"typeof Number(123); // "number"typeof 123; // "number"
+上面的第三项是文本语法，为了避免冲突，我们应该使用这种方法来构造上面的这些类型。
+
+使用“new”关键字来构造任何东西
+
+如果你自写构造函数并且忘记了new关键字，那么悲剧就发生了：
+
+var Car = function(colour) {    this.colour = colour;
+}; 
+var aCar = new Car("blue");
+console.log(aCar.colour); // "blue" var bCar = Car("blue");
+console.log(bCar.colour); // errorconsole.log(window.colour); //"blue"
+使用new关键字调用函数会创建一个新的对象，然后调用新对象上下文中的函数，最后再返回该对象。相反的，如果不使用new关键在调用函数，那它将会变成一个全局对象。
+
+偶然忘记使用new关键字意味着很多可选择的对象构造模式已经出现可以完全删除使用这个关键字的需求的情况，尽管这超出了本文的范围，但我还是建议你去进一步阅读。
+
+没有Integer类型
+
+数值计算是相对缓慢的，因为没有Integer类型。只有Number类型 - Number是IEEE标准中双精度浮点运算（64位）类型。这就意味着Number会引起下面的精度舍入错误：
+
+0.1 + 0.2 === 0.3 //false
+因为integers和floats没有区别，不像C#和JAVA下面代码是true：
+
+0.0 === 0; //true
+最后是一个关于Number的疑问，我们该如何实现下面的问题：
+
+a === b; //true1/a === 1/b; //false
+答案是按照Number的规范是允许出现+0和-0的，+0等于-0，但是正无穷大不等于负无穷大，代码如下：
+
+var a = 0 * 1; // 这个结果为0var b = 0 * -1; // 这个结果为-0 (你也可以直接"b=-0",但是你为何要这样做?)a === b; //true: 0等于-01/a === 1/b; //false: 正无穷大不等于负无穷大
+作用域
+
+没有块作用域
+
+因为你可能已经注意到上一个观点，javascript中没有块作用域的概念，只有函数作用域。可以试试下面的代码：
+
+for(var i=0; i<10; i++) {
+    console.log(i);
+}var i;
+console.log(i); // 10
+当i被定义在for循环中，退出循环后它人被保留在这个作用域内，所以最后调用console.log输出了10。这里有一个JSLint警告来让你避免这个问题：强制将所有的变量定义在函数的开头。 我们有可能通过写一个立即执行的function来创建一个作用域：
+
+(function (){    for(var i=0; i<10; i++) {
+        console.log(i);
+    }
+}());var i;
+console.log(i); // undefined
+当你在内部函数之前声明一个变量，然后在函数里重声明这个变量，那将会出现一个奇怪的问题，示例代码如下：
+
+var x = 3;
+(function (){
+    console.log(x + 2); // 5    x = 0; //No var declaration}());
+但是，如果你在内部函数中重新声明x变量，会出现一个奇怪的问题：
+
+var x = 3;
+(function (){
+    console.log(x + 2); //NaN - x is not defined    var x = 0; //var declaration}());
+这是因为在函数中x变量被重新定义了，这说明了翻译程序将var表达式移动到了函数顶部了，最终就变成这样执行了：
+
+var x = 3;
+(function (){    var x;
+    console.log(x + 2); //NaN - x is not defined    x = 0;
+}());
+这个实在是太有意义了！
+
+全局变量
+
+Javascript 有一个全局作用域，在为你的代码创建命名空间时一定要小心谨慎。全局变量会给你的应用增加一些性能问题，因为当你访问它们时，运行时不得不通过每一个作用域来建立知道找到它们为止。他们会因你的有意或者无意而被访问或者修改，这将导致另外一个更加严重的问题 - 跨站点脚本攻击。如果一个不怀好意的家伙在你的页面上找出了如何执行那些代码的方法，那么他们就可以通过修改全局变量非常容易地扰乱你的应用。缺乏经验的开发者在无意中会不断的将变量添加到全局作用域中，通过本文，将会告诉大家这样会发生什么意外的事情。
+
+我曾经看到过下面的代码，它将尝试声明两个值相等的局部变量：
+
+var a = b = 3;
+这样非常正确的得到了a=3和b=3，但是a在局部作用域中而b在全局作用域中，”b=3“将会被先执行，全局操作的结果，3，再被分配给局部变量a。
+
+下面的代码声明了两个值为3的变量，这样能达到预期的效果：
+
+var a = 3,
+b = a;
+”this“和内部函数
+
+”this“关键字通常指当前正在执行的函数所在的对象，然而，如果函数并没有在对象上被调用，比如在内部函数中，”this“就被设置为全局对象（window），如下代码：
+
+var obj = {
+    doSomething: function () {        var a = "bob";
+        console.log(this); // 当前执行的对象        (function () {
+            console.log(this); // window - "this" is reset            console.log(a); // "bob" - still in scope        }());
+    }
+};
+obj.doSomething();
+杂项
+
+数据不存在：”null“和”undefined“
+
+有两种对象状态来表明数据不存在：null和undefined。这会让那些从其他编程语言比如C#转过来的程序员变得相当混乱。也许你会期望下面的代码返回true：
+
+var a;
+a === null; //falsea === undefined; //true
+”a“实际上是undefined的（尽管你用双等号==来与null比较会得出true的结果，但这只是表面上看起来正确的另一个错误）。
+
+如果你想检查一个变量是否真的存在值，那你不能用双等号==去判断，要用下面的方法：
+
+if(a !== null && a !== undefined) {
+    ...
+}
+”哈“，你也许会说，既然null和undefined都是false，那么你可以这样去做：
+
+if(a) {
+    ...
+}
+当然，0是false，空字符串也是。那么如果这其中一个是a的正确的值的话，你就要用前者了。那种比较短小的比较方式，适合于比较objects, arrays, 和booleans类型。
+
+重定义undefined
+
+非常正确，你可以重定义undefined，因为它不是一个保留字：
+
+undefined = "surprise!";
+但是，你要通过给undefined变量分配一个值或者使用”void“操作符来取回值（否则这是相当没用的）。
+
+undefined = void 0;
+这就是为什么jquery脚本库的第一行要这样写了：
+
+(function ( window, undefined ) {
+    ... // jQuery library!}(window));
+这个函数被调用时是传入一个参数的，同时确保了第二个参数”undefined“实际上是undefined的。
+
+顺便说一下，你不能重定义null - 但是你可以重定义NaN，Infinity和带构造函数的内置类型。可以这样尝试一下：
+
+Array = function (){ alert("hello!"); }var a = new Array();
+当然，你可以在任何地方用文字语法声明Array。
+
+可选的分号
+
+Javascript代码中分号是可选的，所以初学者写代码就简单多了。但是很不幸的是如果忽略了分号并不会给任何人带来方便。结果是当解释器遇到错误时，必须追溯并尝试去猜测因为哪些分号漏写导致的问题。
+
+这里有一个经典的例子：
+
+return{
+    a: "hello"
+};
+上面的代码并不会返回一个对象，而是返回了undefined - 但是也没有错误抛出。其实是因为分号自动加到了return语句后面，其他的代码都是非常正确的，但是就是什么都不执行，这就证明了在 javascript中，左花括号应该紧跟这一行而不该换行，这不只是一个编程风格的问题。下面的代码才会正确返回一个属性为a的对象：
+
+return {
+    a: "hello"
+};
+NaN
+
+NaN的类型是...Number
+
+typeof NaN === "number" //true
+另外NaN和任何东西比较都是false：
+
+NaN === NaN; // false
+因为NaN之间是不能比较的，唯一判断一个数字是否为NaN的方法是调用isNaN方法。
+
+从另一个方面可以说明，我们也可以用函数isFinite，当其中一个操作数为NaN或者InFinity时返回false。
+
+arguments对象
+
+在一个函数中，我们可以引用arguments对象来遍历传入的参数列表，第一个比较怪异的地方是这个对象并不是Array，而是一个类似 Array的对象（有一个length属性，其值在0-length-1之间）。为了将其转换成array，我们可以array的splice函数来创建 其对应的array数组：
+
+(function(){
+console.log(arguments instanceof Array); // falsevar argsArray = Array.prototype.slice.call(arguments);
+console.log(argsArray instanceof Array); // true}());
+第二个比较怪异的地方是当一个函数的签名中有显式arguments参数时，它们是可以被重新分配的并且arguments对象也会被改变。这就表明了arguments对象指向了变量本身。你不能利用arguments对象来给出它们的初始值：
+
+(function(a){
+    alert(arguments[0]); //1    a = 2;
+    alert(arguments[0]); //2}(1));
