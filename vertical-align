@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        div{
+            margin-top: 50px;
+            height: 400px;
+            line-height: 400px;
+            text-align: center;
+            background-color: #A2A590;
+        }
+        div img{
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <img src="styles/images/xlf.jpg" alt="logo" id="logo" />
+    </div>
+</body>
+</html>
