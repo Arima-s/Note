@@ -1,0 +1,124 @@
+// 1.原始模式，对象字面量方式
+var person = { 
+    name: 'Jack',
+    age: 18,
+    sayName: function () { alert(this.name); }
+};
+// 1.原始模式，Object构造函数方式
+var person = new Object();
+person.name = 'Jack';
+person.age = 18;
+person.sayName = function () {
+    alert(this.name);
+};
+
+// 2.工厂模式，定义一个函数创建对象
+function creatPerson (name, age) {
+    var person = new Object(); 
+    person.name = name;
+    person.age = age;
+    person.sayName = function () {
+        alert(this.name);
+    };
+    return person; 
+}
+
+// 3.构造函数模式，为对象定义一个构造函数
+function Person (name, age) {
+    this.name = name;
+    this.age = age;
+    this.sayName = function () {
+        alert(this.name);
+    };    
+}
+var p1 = new Person('Jack', 18); //创建一个p1对象
+Person('Jack', 18);    //属性方法都给window对象，window.name='Jack'，window.sayName()会输出Jack
+
+//4.原型模式，直接定义prototype属性
+function Person () {}
+Person.prototype.name = 'Jack';
+Person.prototype.age = 18;
+Person.prototype.sayName = function () { alert(this.name); };
+//4.原型模式，字面量定义方式
+function Person () {}
+Person.prototype = {
+    name: 'Jack',
+    age: 18,
+    sayName: function () { alert(this.name); }
+};
+var p1 = new Person(); //name='Jack'
+var p2 = new Person(); //name='Jack'
+
+// 5. 原型构造组合模式，（混合模式）
+function Person (name, age) {
+    this.name = name;
+    this.age = age;
+}
+Person.prototype = {
+    hobby: ['running','football'];
+    sayName: function () { alert(this.name); },
+    sayAge: function () { alert(this.age); }
+};
+var p1 = new Person('Jack', 20); 
+//p1:'Jack',20; __proto__: ['running','football'],sayName,sayAge
+var p2 = new Person('Mark', 18); 
+//p1:'Mark',18;__proto__: ['running','football'],sayName,sayAge
+
+// 6.组合继承
+function Mother (age) {
+    this.age = age;
+    this.hobby = ['running','football']
+}
+Mother.prototype.showAge = function () {
+    console.log(this.age); 
+};
+
+function Person (name, age) { 
+    Mother.call(this, age);　　//第二次执行
+    this.name = name; 
+}
+Person.prototype = new Mother(); 　//第一次执行
+Person.prototype.constructor = Person;
+Person.prototype.showName = function () {
+    console.log(this.name);
+}
+
+var p1 = new Person('Jack', 20); 
+p1.hobby.push('basketball');  //p1:'Jack'; __proto__:20,['running','football']
+var p2 = new Person('Mark', 18);  //p2:'Mark'; __proto__:18,['running','football']
+
+// 7.寄生组合式继承
+function object(o){
+    function F(){}
+    F.prototype = o;
+    return new F();
+}
+
+function inheritPrototype(Person, Mother){
+    var prototype = object(Mother.prototype); 
+    prototype.constructor = Person;    
+    Person.prototype = prototype;    
+}
+                        
+function Mother (age) {
+    this.age = age;
+    this.hobby = ['running','football']
+}
+Mother.prototype.showAge = function () {
+    console.log(this.age); 
+};
+
+function Person (name, age) { 
+    Mother.call(this, age);
+    this.name = name; 
+}
+
+inheritPrototype(Person, Mother);
+
+Person.prototype.showName = function () {
+    console.log(this.name);
+}
+
+var p1 = new Person('Jack', 20); 
+p1.hobby.push('basketball');//p1:'Jack'; __proto__:20,['running','football']
+var p2 = new Person('Mark', 18); //p2:'Mark'; __proto__:18,['running','football']
