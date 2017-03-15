@@ -1,0 +1,183 @@
+/* 手机类型判断 */
+
+var BrowserInfo = {
+    userAgent: navigator.userAgent.toLowerCase()
+    isAndroid: Boolean(navigator.userAgent.match(/android/ig)),
+    isIphone: Boolean(navigator.userAgent.match(/iphone|ipod/ig)),
+    isIpad: Boolean(navigator.userAgent.match(/ipad/ig)),
+    isWeixin: Boolean(navigator.userAgent.match(/MicroMessenger/ig)),
+}
+
+/* 返回字符串长度，汉子计数为2  */
+
+function strLength(str) {
+    var a = 0;
+    for (var i = 0; i < str.length; i++) {
+        if (str.charCodeAt(i) > 255)
+            a += 2;//按照预期计数增加2
+        else
+            a++;
+    }
+    return a;
+}
+
+获取url中的参数 
+
+function GetQueryStringRegExp(name,url) {
+    var reg = new RegExp("(^|\\?|&)" + name + "=([^&]*)(\\s|&|$)", "i");
+    if (reg.test(url)) return decodeURIComponent(RegExp.$2.replace(/\+/g, " ")); return "";
+}
+
+/* js 绑定事件 适用于任何浏览器的元素绑定  */
+
+function eventBind(obj, eventType, callBack) {
+        if (obj.addEventListener) {
+            obj.addEventListener(eventType, callBack, false);
+        }
+        else if (window.attachEvent) {
+            obj.attachEvent('on' + eventType, callBack);
+        }
+        else {
+            obj['on' + eventType] = callBack;
+        }
+    };
+eventBind(document, 'click', bodyClick);
+　　
+
+/* 获得当前浏览器JS的版本 */
+
+function getjsversion(){
+    var n = navigator;
+    var u = n.userAgent;
+    var apn = n.appName;
+    var v = n.appVersion;
+    var ie = v.indexOf('MSIE ');
+    if (ie > 0){
+        apv = parseInt(i = v.substring(ie + 5));
+        if (apv > 3) {
+            apv = parseFloat(i);
+        }
+    } else {
+        apv = parseFloat(v);
+    }
+    var isie = (apn == 'Microsoft Internet Explorer');
+    var ismac = (u.indexOf('Mac') >= 0);
+    var javascriptVersion = "1.0";
+    if (String && String.prototype) {
+        javascriptVersion = '1.1';
+        if (javascriptVersion.match) {
+            javascriptVersion = '1.2';
+            var tm = new Date;
+            if (tm.setUTCDate) {
+                javascriptVersion = '1.3';
+                if (isie && ismac && apv >= 5) javascriptVersion = '1.4';
+                var pn = 0;
+                if (pn.toPrecision) {
+                    javascriptVersion = '1.5';
+                    a = new Array;
+                    if (a.forEach) {
+                        javascriptVersion = '1.6';
+                        i = 0;
+                        o = new Object;
+                        tcf = new Function('o', 'var e,i=0;try{i=new Iterator(o)}catch(e){}return i');
+                        i = tcf(o);
+                        if (i && i.next) {
+                            javascriptVersion = '1.7';
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return javascriptVersion;
+}
+
+/* 获取当前点击事件的Object对象 */
+
+function getEvent() {
+    if (document.all) {
+        return window.event; //如果是ie
+    }
+    func = getEvent.caller;
+    while (func != null) {
+        var arg0 = func.arguments[0];
+        if (arg0) {
+            if ((arg0.constructor == Event || arg0.constructor == MouseEvent)
+|| (typeof (arg0) == "object" && arg0.preventDefault && arg0.stopPropagation)) {
+                return arg0;
+            }
+        }
+        func = func.caller;
+    }
+    return null;
+};
+
+/* 字符串截取方法  */
+
+getCharactersLen: function (charStr, cutCount) {
+        if (charStr == null || charStr == '') return '';
+        var totalCount = 0;
+        var newStr = '';
+        for (var i = 0; i < charStr.length; i++) {
+            var c = charStr.charCodeAt(i);
+            if (c < 255 && c > 0) {
+                totalCount++;
+            } else {
+                totalCount += 2;
+            }
+            if (totalCount >= cutCount) {
+                newStr += charStr.charAt(i);
+                break;
+            }
+            else {
+                newStr += charStr.charAt(i);
+            }
+        }
+        return newStr;
+    }
+
+/*  JS 弹出新窗口全屏  */
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+var tmp = window.open("about:blank", "", "fullscreen=1")
+    tmp.moveTo(0, 0);
+    tmp.resizeTo(screen.width + 20, screen.height);
+    tmp.focus();
+    tmp.location.href = 'http://www.che168.com/pinggu/eva_' + msgResult.message[0] + '.html';
+ 
+var config_ = "left=0,top=0,width=" + (window.screen.Width) + ",height=" + (window.screen.Height);
+                            window.open('http://www.che168.com/pinggu/eva_' + msgResult.message[0] + '.html', "winHanle", config_);
+//模拟form提交打开新页面
+var f = document.createElement("form");
+    f.setAttribute('action', 'http://www.che168.com/pinggu/eva_' + msgResult.message[0] + '.html');
+    f.target = '_blank';
+    document.body.appendChild(f);
+    f.submit();
+                            
+/*   全选/全不选  */
+
+function selectAll(objSelect) {
+    if (objSelect.checked == true) {
+        $("input[name='chkId']").attr("checked", true);
+        $("input[name='chkAll']").attr("checked", true);
+    }
+    else if (objSelect.checked == false) {
+        $("input[name='chkId']").attr("checked", false);
+        $("input[name='chkAll']").attr("checked", false);
+    }
+}      
+
+
