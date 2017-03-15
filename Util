@@ -21,7 +21,7 @@ function strLength(str) {
     return a;
 }
 
-获取url中的参数 
+/* 获取url中的参数  */
 
 function GetQueryStringRegExp(name,url) {
     var reg = new RegExp("(^|\\?|&)" + name + "=([^&]*)(\\s|&|$)", "i");
@@ -138,20 +138,6 @@ getCharactersLen: function (charStr, cutCount) {
 
 /*  JS 弹出新窗口全屏  */
 
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
 var tmp = window.open("about:blank", "", "fullscreen=1")
     tmp.moveTo(0, 0);
     tmp.resizeTo(screen.width + 20, screen.height);
@@ -179,5 +165,389 @@ function selectAll(objSelect) {
         $("input[name='chkAll']").attr("checked", false);
     }
 }      
+
+/* 判断浏览器 */
+
+function getOs() {
+    if (navigator.userAgent.indexOf("MSIE 8.0") > 0) {
+        return "MSIE8";
+    }
+    else if (navigator.userAgent.indexOf("MSIE 6.0") > 0) {
+        return "MSIE6";
+    }
+    else if (navigator.userAgent.indexOf("MSIE 7.0") > 0) {
+        return "MSIE7";
+    }
+    else if (isFirefox = navigator.userAgent.indexOf("Firefox") > 0) {
+        return "Firefox";
+    }
+    if (navigator.userAgent.indexOf("Chrome") > 0) {
+        return "Chrome";
+    }
+    else {
+        return "Other";
+    }
+}
+
+/*  JS判断两个日期大小 适合 2012-09-09 与2012-9-9 两种格式的对比  */
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+//得到日期值并转化成日期格式，replace(/\-/g, "\/")是根据验证表达式把日期转化成长日期格式，这样再进行判断就好判断了
+function ValidateDate() {
+    var beginDate = $("#t_datestart").val();
+    var endDate = $("#t_dateend").val();
+    if (beginDate.length > 0 && endDate.length>0) {
+        var sDate = new Date(beginDate.replace(/\-/g, "\/"));
+        var eDate= new Date(endDate.replace(/\-/g, "\/"));
+        if (sDate > eDate) {
+            alert('开始日期要小于结束日期');
+            return false;
+        }
+    }
+}
+
+/* 移除事件 */
+
+this.moveBind = function (objId, eventType, callBack) {
+    var obj = document.getElementById(objId);
+    if (obj.removeEventListener) {
+        obj.removeEventListener(eventType, callBack, false);
+    }
+    else if (window.detachEvent) {
+        obj.detachEvent('on' + eventType, callBack);
+    }
+    else {
+        obj['on' + eventType] = null;
+    }
+}
+
+/* 回车提交 */
+
+$("id").onkeypress = function (event) {
+    event = (event) ? event : ((window.event) ? window.event : "")
+    keyCode = event.keyCode ? event.keyCode : (event.which ? event.which : event.charCode);
+    if (keyCode == 13) {
+        $("SubmitLogin").onclick();
+    }
+}
+
+/* JS 执行计时器 */
+
+timeStart = new Date().getTime();
+timesEnd = new Date().getTime();
+document.getElementById("time").innerHTML = timesEnd - timeStart;
+
+/* JS 写Cookie */
+
+function setCookie(name, value, expires, path, domain) {
+    if (!expires) expires = -1;
+    if (!path) path = "/";
+    var d = "" + name + "=" + value;
+    var e;
+    if (expires < 0) {
+        e = "";
+    }
+    else if (expires == 0) {
+        var f = new Date(1970, 1, 1);
+        e = ";expires=" + f.toUTCString();
+    }
+    else {
+        var now = new Date();
+        var f = new Date(now.getTime() + expires * 1000);
+        e = ";expires=" + f.toUTCString();
+    }
+    var dm;
+    if (!domain) {
+        dm = "";
+    }
+    else {
+        dm = ";domain=" + domain;
+    }
+    document.cookie = name + "=" + value + ";path=" + path + e + dm;
+};
+
+/* JS 读Cookie  */
+
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) {
+            return decodeURIComponent(c.substring(nameEQ.length, c.length))
+        }
+    } return null
+}
+
+/*  Ajax 请求  */
+
+C.ajax = function (args) {
+    var self = this;
+    this.options = {
+        type: 'GET',
+        async: true,
+        contentType: 'application/x-www-form-urlencoded',
+        url: 'about:blank',
+        data: null,
+        success: {},
+        error: {}
+    };
+    this.getXmlHttp = function () {
+        var xmlHttp;
+        try {
+            xmlhttp = new XMLHttpRequest();
+        }
+        catch (e) {
+            try {
+                xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+            }
+            catch (e) {
+                xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+        }
+        if (!xmlhttp) {
+            alert('您的浏览器不支持AJAX');
+            return false;
+        }
+        return xmlhttp;
+    };
+    this.send = function () {
+        C.each(self.options, function (key, val) {
+            self.options[key] = (args[key] == null) ? val : args[key];
+        });
+ 
+        var xmlHttp = new self.getXmlHttp();
+        if (self.options.type.toUpperCase() == 'GET') {
+            xmlHttp.open(self.options.type, self.options.url + (self.options.data == null ? "" : ((/[?]$/.test(self.options.url) ? '&' : '?') + self.options.data)), self.options.async);
+        }
+        else {
+            xmlHttp.open(self.options.type, self.options.url, self.options.async);
+            xmlHttp.setRequestHeader('Content-Length', self.options.data.length);
+        }
+        xmlHttp.setRequestHeader('Content-Type', self.options.contentType);
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState == 4) {
+                if (xmlHttp.status == 200 || xmlHttp.status == 0) {
+                    if (typeof self.options.success == 'function') self.options.success(xmlHttp.responseText);
+                    xmlHttp = null;
+                }
+                else {
+                    if (typeof self.options.error == 'function') self.options.error('Server Status: ' + xmlHttp.status);
+                }
+            }
+        };
+ 
+        xmlHttp.send(self.options.type.toUpperCase() == 'POST' ? self.options.data.toString() : null);
+    };
+    this.send();
+};
+
+/*  JS StringBuilder 用法  */
+
+function StringBuilder() {
+    this.strings = new Array;
+};
+StringBuilder.prototype.append = function (str) {
+    this.strings.push(str);
+};
+StringBuilder.prototype.toString = function () {
+    return this.strings.join('');
+};
+
+/* JS 加载到顶部LoadJS  */
+
+function loadJS (url, fn) {
+    var ss = document.getElementsByName('script'),
+        loaded = false;
+    for (var i = 0, len = ss.length; i < len; i++) {
+        if (ss[i].src && ss[i].getAttribute('src') == url) {
+            loaded = true;
+            break;
+        }
+    }
+    if (loaded) {
+        if (fn && typeof fn != 'undefined' && fn instanceof Function) fn();
+        return false;
+    }
+    var s = document.createElement('script'),
+        b = false;
+    s.setAttribute('type', 'text/javascript');
+    s.setAttribute('src', url);
+    s.onload = s.onreadystatechange = function () {
+        if (!b && (!this.readyState || this.readyState == 'loaded' || this.readyState == 'complete')) {
+            b = true;
+            if (fn && typeof fn != 'undefined' && fn instanceof Function) fn();
+        }
+    };
+    document.getElementsByTagName('head')[0].appendChild(s);
+},
+bind: function (objId, eventType, callBack) {  //适用于任何浏览器的绑定
+    var obj = document.getElementById(objId);
+    if (obj.addEventListener) {
+        obj.addEventListener(eventType, callBack, false);
+    }
+    else if (window.attachEvent) {
+        obj.attachEvent('on' + eventType, callBack);
+    }
+    else {
+        obj['on' + eventType] = callBack;
+    }
+}
+ 
+function JSLoad (args) {
+    s = document.createElement("script");
+    s.setAttribute("type", "text/javascript");
+    s.setAttribute("src", args.url);
+    s.onload = s.onreadystatechange = function () {
+        if (!s.readyState || s.readyState == "loaded" || s.readyState == "complete") {
+            if (typeof args.callback == "function") args.callback(this, args);
+            s.onload = s.onreadystatechange = null;
+            try {
+                s.parentNode && s.parentNode.removeChild(s);
+            } catch (e) { }
+        }
+    };
+    document.getElementsByTagName("head")[0].appendChild(s);
+}
+
+/*  清空 LoadJS 加载到顶部的js引用  */
+
+function ClearHeadJs  (src) {
+    var js = document.getElementsByTagName('head')[0].children;
+    var obj = null;
+    for (var i = 0; i < js.length; i++) {
+        if (js[i].tagName.toLowerCase() == "script" && js[i].attributes['src'].value.indexOf(src) > 0) {
+            obj = js[i];
+        }
+    }
+    document.getElementsByTagName('head')[0].removeChild(obj);
+};
+
+/*  JS 替换非法字符主要用在密码验证上出现的特殊字符  */
+
+function URLencode(sStr) {
+    return escape(sStr).replace(/\+/g, '%2B').replace(/\"/g, '%22').replace(/\'/g, '%27').replace(/\//g, '%2F');
+};
+
+/*  按Ctrl + Entert 直接提交表单   */
+
+document.body.onkeydown = function (evt) {
+    evt = evt ? evt : (window.event ? window.event : null);
+    if (13 == evt.keyCode && evt.ctrlKey) {
+        evt.returnValue = false;
+        evt.cancel = true;
+        PostData();
+    }
+};
+
+/* 获取当前时间  */
+
+function GetCurrentDate() {
+    var d = new Date();
+    var y = d.getYear()+1900;
+    month = add_zero(d.getMonth() + 1),
+    days = add_zero(d.getDate()),
+    hours = add_zero(d.getHours());
+    minutes = add_zero(d.getMinutes()),
+    seconds = add_zero(d.getSeconds());
+    var str = y + '-' + month + '-' + days + ' ' + hours + ':' + minutes + ':' + seconds;
+    return str;
+};
+function add_zero(temp) {
+    if (temp < 10) return "0" + temp;
+    else return temp;
+}
+
+/*  Js 去掉空格方法：  */
+
+String.prototype.Trim = function() { 
+    return this.replace(/(^\s*)|(\s*$)/g, ""); 
+}
+String.prototype.LTrim = function() {
+    return this.replace(/(^\s*)/g, "");
+}
+String.prototype.RTrim = function() {
+    return this.replace(/(\s*$)/g, "");
+}
+
+/* js 动态移除 head 里的 js 引用  */
+
+this.ClearHeadJs = function (src) {
+    var js = document.getElementsByTagName('head')[0].children;
+    var obj = null;
+    for (var i = 0; i < js.length; i++) {
+        if (js[i].tagName.toLowerCase() == "script" && js[i].attributes['src'].value.indexOf(src) > 0) {
+            obj = js[i];
+        }
+    }
+    document.getElementsByTagName('head')[0].removeChild(obj);
+};
+
+/*  整个UL 点击事件  加在UL里的onclick里 */
+
+function CreateFrom(url, params) {
+     var f = document.createElement("form");
+     f.setAttribute("action", url);
+     for (var i = 0; i < params.length; i++) {
+         var input = document.createElement("input");
+         input.setAttribute("type", "hidden");
+         input.setAttribute("name", params[i].paramName);
+         input.setAttribute("value", params[i].paramValue);
+         f.appendChild(input);
+     }
+     f.target = "_blank";
+     document.body.appendChild(f);
+     f.submit();
+ };
+
+/* 判断浏览器使用的是哪个 JS 版本 */
+
+<script language="javascript">
+      var jsversion = 1.0;
+</script>
+<script language="javascript1.1">
+  jsversion = 1.1;
+</script>
+<script language="javascript1.2">
+  jsversion = 1.2;
+</script>
+<script language="javascript1.3">
+  jsversion = 1.3;
+</script>
+<script language="javascript1.4">
+  jsversion = 1.4;
+</script>
+<script language="javascript1.5">
+  jsversion = 1.5;
+</script>
+<script language="javascript1.6">
+  jsversion = 1.6;
+</script>
+<script language="javascript1.7">
+  jsversion = 1.7;
+</script>
+<script language="javascript1.8">
+  jsversion = 1.8;
+</script>
+<script language="javascript1.9">
+  jsversion = 1.9;
+</script>
+<script language="javascript2.0">
+  jsversion = 2.0;
+</script>
+alert(jsversion);
 
 
