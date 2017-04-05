@@ -15,3 +15,21 @@ var arr = [112, 112, 34, '你好', 112, 112, 34, '你好', 'str', 'str1'];
 
 unique(arr);
 
+
+// hash
+function unique(arr) {
+	var _arr = [],
+	  	hash = {},
+	  	arrLength = arr.length;
+
+	for (var i = 0; i < arrLength; i++) {
+		var item = arr[i];
+		var key = typeof(item) + item;
+		if (hash[key] !== 1) {
+			_arr.push(item);
+			hash[key] = 1;
+		}
+	}
+
+	return _arr;
+}
